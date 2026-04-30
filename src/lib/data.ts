@@ -104,7 +104,7 @@ export const projects: Project[] = [
       "Nimons Hospital Administration System — a comprehensive hospital management solution built with Abstract Data Types in C. Features patient records, scheduling, and resource management.",
     tags: ["C", "ADT", "Data Structures", "CLI"],
     gradient: "from-violet-600/30 via-indigo-600/20 to-blue-600/10",
-    githubUrl: "https://github.com/reinhardalfonzo",
+    githubUrl: "https://github.com/Rizelbit",
   },
   {
     title: "Matrix Calculator GHDB",
@@ -197,6 +197,6 @@ export interface SocialLink {
 }
 
 export const socialLinks: SocialLink[] = [
-  { name: "GitHub", url: "https://github.com/reinhardalfonzo", iconName: "github" },
+  { name: "GitHub", url: "https://github.com/Rizelbit", iconName: "github" },
   { name: "LinkedIn", url: "https://linkedin.com/in/reinhardalfonzo", iconName: "linkedin" },
 ];

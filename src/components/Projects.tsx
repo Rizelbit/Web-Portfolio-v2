@@ -1,14 +1,52 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ExternalLink,
-  Lock,
-} from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+/* ═══════════════════════════════════════════════
+   Register GSAP ScrollTrigger plugin (once)
+   ═══════════════════════════════════════════════ */
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+/* ═══════════════════════════════════════════════
+   Inline Project Data
+   ═══════════════════════════════════════════════ */
+const projects = [
+  {
+    id: 1,
+    title: "HEALTHCORE-N",
+    description:
+      "Hospital Administration System with Abstract Data Types in C.",
+    tags: ["C", "ADT", "Data Structures", "CLI"],
+    github: "https://github.com/reinhardalfonzo",
+    gradient: "linear-gradient(135deg, #1e1b4b 0%, #3b0764 50%, #171717 100%)",
+  },
+  {
+    id: 2,
+    title: "Matrix Calculator GHDB",
+    description:
+      "Linear algebraic matrix calculator built with Java and JavaFX.",
+    tags: ["Java", "JavaFX", "Linear Algebra", "GUI"],
+    github: "https://github.com/reinhardalfonzo",
+    gradient: "linear-gradient(135deg, #042f2e 0%, #083344 50%, #171717 100%)",
+  },
+  {
+    id: 3,
+    title: "CampusCompass",
+    description:
+      "Career path recommendation platform for university students.",
+    tags: ["React", "TypeScript", "MongoDB"],
+    github: "https://github.com/reinhardalfonzo",
+    gradient: "linear-gradient(135deg, #4c0519 0%, #500724 50%, #171717 100%)",
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   GitHub Icon (inline SVG)
+   ═══════════════════════════════════════════════ */
 function GithubIcon({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -16,159 +54,213 @@ function GithubIcon({ size = 20 }: { size?: number }) {
     </svg>
   );
 }
-import { projects } from "@/lib/data";
-import { fadeInUp, viewportOnce } from "@/lib/animations";
 
+/* ═══════════════════════════════════════════════
+   Desktop breakpoint
+   ═══════════════════════════════════════════════ */
+const DESKTOP_BP = 1024;
+
+/* ═══════════════════════════════════════════════
+   Projects Component
+   ═══════════════════════════════════════════════ */
 export default function Projects() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  /* ─── Update scroll state ─── */
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const scrollLeft = el.scrollLeft;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < maxScroll - 10);
-
-    /* Determine active card based on scroll position */
-    const cardWidth = el.children[0]?.clientWidth ?? 0;
-    const gap = 24; // gap-6 = 24px
-    const index = Math.round(scrollLeft / (cardWidth + gap));
-    setActiveIndex(Math.min(index, projects.length - 1));
-  }, []);
-
+  /* ─── Desktop: GSAP Pinned Horizontal Scroll ─── */
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateScrollState, { passive: true });
-    updateScrollState();
-    return () => el.removeEventListener("scroll", updateScrollState);
-  }, [updateScrollState]);
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    if (!section || !track) return;
 
-  /* ─── Navigation ─── */
-  const scrollToCard = useCallback((index: number) => {
-    const el = scrollRef.current;
-    if (!el || !el.children[index]) return;
+    /* Check prefers-reduced-motion */
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
-    const card = el.children[index] as HTMLElement;
-    const scrollLeft =
-      card.offsetLeft - el.offsetLeft - (el.clientWidth - card.clientWidth) / 2;
+    const desktop = window.innerWidth >= DESKTOP_BP;
+    setIsDesktop(desktop);
 
-    el.scrollTo({ left: scrollLeft, behavior: "smooth" });
-    setActiveIndex(index);
+    if (!desktop || prefersReducedMotion) return;
+
+    /* Create GSAP context for cleanup */
+    const ctx = gsap.context(() => {
+      let maxScroll = track.scrollWidth - section.clientWidth;
+
+      /* Quick setter for performant x-translation */
+      const setX = gsap.quickSetter(track, "x", "px");
+
+      const st = ScrollTrigger.create({
+        trigger: section,
+        pin: true,
+        scrub: true,
+        anticipatePin: 0.5,
+        start: "top top",
+        end: () => `+=${maxScroll}`,
+        onUpdate: (self) => {
+          const x = -self.progress * maxScroll;
+          setX(x);
+
+          /* Calculate active project index (intro panel = index -1, skip it) */
+          const cardWidth = track.children[1]
+            ? (track.children[1] as HTMLElement).offsetWidth
+            : 0;
+          const gap = 48; // gap-12
+          const introWidth = (track.children[0] as HTMLElement).offsetWidth;
+          const scrolled = self.progress * maxScroll;
+          const afterIntro = scrolled - introWidth - gap;
+
+          if (afterIntro < 0) {
+            setActiveIndex(0);
+          } else {
+            const idx = Math.round(afterIntro / (cardWidth + gap));
+            setActiveIndex(Math.min(idx, projects.length - 1));
+          }
+        },
+        invalidateOnRefresh: true,
+      });
+
+      /* ResizeObserver + debounced recalculation */
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      const ro = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const nowDesktop = window.innerWidth >= DESKTOP_BP;
+          setIsDesktop(nowDesktop);
+
+          if (!nowDesktop) {
+            st.kill();
+            gsap.set(track, { x: 0 });
+            return;
+          }
+
+          maxScroll = track.scrollWidth - section.clientWidth;
+          st.vars.end = `+=${maxScroll}`;
+          ScrollTrigger.refresh();
+        }, 150);
+      });
+
+      ro.observe(section);
+      ro.observe(track);
+
+      /* Lenis compatibility — scrollerProxy */
+      // The SmoothScrollProvider uses Lenis which manages its own RAF.
+      // ScrollTrigger works with Lenis out of the box when using
+      // the default scroller (document), so no explicit scrollerProxy
+      // is needed unless a custom scroll container is specified.
+
+      return () => {
+        clearTimeout(resizeTimer);
+        ro.disconnect();
+        st.kill();
+      };
+    }, section);
+
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
-  const prev = () => scrollToCard(Math.max(0, activeIndex - 1));
-  const next = () =>
-    scrollToCard(Math.min(projects.length - 1, activeIndex + 1));
+  /* ─── Mobile: native scroll indicator update ─── */
+  const handleMobileScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const cardWidth = el.children[0]
+        ? (el.children[0] as HTMLElement).offsetWidth
+        : 0;
+      const gap = 16;
+      const idx = Math.round(el.scrollLeft / (cardWidth + gap));
+      setActiveIndex(Math.min(idx, projects.length - 1));
+    },
+    []
+  );
 
   return (
-    <section id="projects" className="relative py-28 sm:py-32">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Header */}
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="mb-14"
-        >
-          <div className="flex flex-col items-center text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
-            <div>
-              <h2 className="mb-3 text-3xl font-heading font-bold text-text-primary sm:text-4xl md:text-5xl">
-                Featured <span className="text-accent">Projects</span>
+    <section
+      id="projects"
+      ref={sectionRef}
+      className="projects-section relative"
+    >
+      {/* ─── Desktop Layout: Pinned Horizontal Scroll ─── */}
+      <div className="projects-desktop">
+        <div ref={trackRef} className="projects-track">
+          {/* Intro Panel */}
+          <div className="projects-intro">
+            <div className="projects-intro-inner">
+              <span className="projects-intro-label">PORTFOLIO</span>
+              <h2 className="projects-intro-heading">
+                Featured{" "}
+                <span className="text-gradient">Projects</span>
               </h2>
-              <p className="max-w-md text-text-muted font-body">
-                A selection of projects that showcase my problem-solving and development skills.
+              <p className="projects-intro-subtitle">
+                A curated selection of projects that showcase my problem-solving
+                approach and development craft.
               </p>
-            </div>
-
-            {/* Desktop Arrows */}
-            <div className="mt-6 hidden gap-3 sm:mt-0 sm:flex">
-              <button
-                onClick={prev}
-                disabled={!canScrollLeft}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-text-primary transition-all duration-300 hover:border-accent/30 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-30"
-                aria-label="Previous project"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                onClick={next}
-                disabled={!canScrollRight}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-text-primary transition-all duration-300 hover:border-accent/30 hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-30"
-                aria-label="Next project"
-              >
-                <ArrowRight size={18} />
-              </button>
+              <div className="projects-intro-divider" />
             </div>
           </div>
-          <div className="mt-6 h-1 w-16 rounded-full bg-gradient-to-r from-accent to-accent-cyan sm:mt-4" />
-        </motion.div>
-      </div>
 
-      {/* ─── Carousel Container ─── */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={viewportOnce}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div
-          ref={scrollRef}
-          className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 sm:px-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]"
-        >
+          {/* Project Cards */}
           {projects.map((project, index) => (
-            <ProjectCard
-              key={project.title}
-              project={project}
-              index={index}
-              isActive={activeIndex === index}
+            <ProjectCard key={project.id} project={project} index={index} />
+          ))}
+
+          {/* Trailing Spacer */}
+          <div className="projects-spacer" />
+        </div>
+
+        {/* Dot Indicators — Desktop (fixed at bottom center of pinned section) */}
+        <div className="projects-dots">
+          {projects.map((_, i) => (
+            <button
+              key={i}
+              className={`projects-dot ${activeIndex === i ? "active" : ""}`}
+              aria-label={`Project ${i + 1}`}
             />
           ))}
         </div>
-      </motion.div>
-
-      {/* ─── Dot Indicators ─── */}
-      <div className="mt-8 flex items-center justify-center gap-2">
-        {projects.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollToCard(i)}
-            className={`h-2 cursor-pointer rounded-full transition-all duration-300 ${
-              activeIndex === i
-                ? "w-8 bg-accent"
-                : "w-2 bg-white/20 hover:bg-white/40"
-            }`}
-            aria-label={`Go to project ${i + 1}`}
-          />
-        ))}
       </div>
 
-      {/* Mobile Arrows */}
-      <div className="mt-6 flex justify-center gap-3 sm:hidden">
-        <button
-          onClick={prev}
-          disabled={!canScrollLeft}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-text-primary transition-all duration-300 hover:border-accent/30 disabled:opacity-30"
-          aria-label="Previous project"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <button
-          onClick={next}
-          disabled={!canScrollRight}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-text-primary transition-all duration-300 hover:border-accent/30 disabled:opacity-30"
-          aria-label="Next project"
-        >
-          <ArrowRight size={18} />
-        </button>
+      {/* ─── Mobile Layout: Native Snap Scroll ─── */}
+      <div className="projects-mobile">
+        {/* Mobile Header */}
+        <div className="projects-mobile-header">
+          <span className="projects-intro-label">PORTFOLIO</span>
+          <h2 className="projects-intro-heading" style={{ fontSize: "2rem" }}>
+            Featured{" "}
+            <span className="text-gradient">Projects</span>
+          </h2>
+          <p className="projects-intro-subtitle">
+            A curated selection of projects that showcase my problem-solving
+            approach and development craft.
+          </p>
+          <div className="projects-intro-divider" />
+        </div>
+
+        {/* Mobile Scroll Container */}
+        <div className="projects-mobile-scroll" onScroll={handleMobileScroll}>
+          {projects.map((project, index) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              index={index}
+              mobile
+            />
+          ))}
+        </div>
+
+        {/* Dot Indicators — Mobile */}
+        <div className="projects-dots mobile-dots">
+          {projects.map((_, i) => (
+            <button
+              key={i}
+              className={`projects-dot ${activeIndex === i ? "active" : ""}`}
+              aria-label={`Project ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -177,137 +269,55 @@ export default function Projects() {
 /* ═══════════════════════════════════════════════
    Project Card Component
    ═══════════════════════════════════════════════ */
-
 function ProjectCard({
   project,
   index,
-  isActive,
+  mobile = false,
 }: {
   project: (typeof projects)[0];
   index: number;
-  isActive: boolean;
+  mobile?: boolean;
 }) {
+  const number = String(index + 1).padStart(2, "0");
+
   return (
-    <motion.div
-      className={`group relative flex w-[85vw] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border transition-all duration-500 sm:w-[70vw] lg:w-[65vw] ${
-        isActive
-          ? "border-accent/20 shadow-[0_0_40px_rgba(124,58,237,0.1)]"
-          : "border-white/[0.06]"
-      }`}
-      style={{ minHeight: "420px" }}
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.15,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+    <div
+      className={`project-card ${mobile ? "project-card--mobile" : ""}`}
+      style={{ background: project.gradient }}
     >
-      {/* ─── Gradient Visual Area ─── */}
-      <div
-        className={`relative flex h-52 items-center justify-center overflow-hidden bg-gradient-to-br ${project.gradient} sm:h-60`}
-      >
-        {/* Decorative grid */}
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
+      {/* Decorative grid overlay */}
+      <div className="project-card-grid" />
 
-        {project.isPlaceholder ? (
-          <div className="relative flex flex-col items-center gap-3">
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Lock size={40} className="text-white/30" />
-            </motion.div>
-            <div
-              className="h-3 w-32 rounded-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
-              style={{
-                backgroundSize: "200% 100%",
-                animation: "shimmer 2s linear infinite",
-              }}
-            />
-          </div>
-        ) : (
-          <div className="relative flex flex-col items-center gap-2 px-6 text-center">
-            <span className="text-4xl font-heading font-bold text-white/20 sm:text-5xl">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span className="text-sm font-body text-white/30">
-              Project Preview
-            </span>
-          </div>
-        )}
+      {/* Number badge — top right, faded */}
+      <span className="project-card-number">{number}</span>
 
-        {/* Hover overlay */}
-        <AnimatePresence>
-          {!project.isPlaceholder && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex cursor-pointer items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-heading font-semibold text-white transition-all duration-300 hover:bg-accent-light"
-              >
-                View Project
-                <ExternalLink size={16} />
-              </a>
-            </div>
-          )}
-        </AnimatePresence>
+      {/* Tech tags — top left */}
+      <div className="project-card-tags">
+        {project.tags.map((tag) => (
+          <span key={tag} className="project-card-tag">
+            {tag}
+          </span>
+        ))}
       </div>
 
-      {/* ─── Card Content ─── */}
-      <div className="flex flex-1 flex-col justify-between bg-bg-secondary/80 p-6 backdrop-blur-sm">
+      {/* Bottom content */}
+      <div className="project-card-bottom">
         <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h3
-              className={`text-xl font-heading font-bold sm:text-2xl ${
-                project.isPlaceholder ? "text-text-muted" : "text-text-primary"
-              }`}
-            >
-              {project.title}
-            </h3>
-            {!project.isPlaceholder && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cursor-pointer text-text-muted transition-colors duration-200 hover:text-text-primary"
-                aria-label={`View ${project.title} on GitHub`}
-              >
-                <GithubIcon size={20} />
-              </a>
-            )}
-          </div>
-
-          <p className="mb-5 text-sm leading-relaxed text-text-muted font-body">
-            {project.description}
-          </p>
+          <h3 className="project-card-title">{project.title}</h3>
+          <p className="project-card-desc">{project.description}</p>
         </div>
 
-        {/* Tech tags */}
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className={`rounded-full px-3 py-1 text-xs font-body font-medium ${
-                project.isPlaceholder
-                  ? "border border-white/[0.06] text-text-dim"
-                  : "border border-accent/20 bg-accent/5 text-accent-light"
-              }`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        {/* GitHub icon — bottom right */}
+        <a
+          href={project.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="project-card-github"
+          aria-label={`View ${project.title} on GitHub`}
+        >
+          <GithubIcon size={20} />
+        </a>
       </div>
-    </motion.div>
+    </div>
   );
 }

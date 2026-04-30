@@ -260,9 +260,6 @@ export default function Contact() {
           <p className="text-sm font-body text-text-dim">
             © {new Date().getFullYear()} Reinhard Alfonzo. All rights reserved.
           </p>
-          <p className="mt-1 text-xs font-body text-text-dim/60">
-            Built with Next.js, TailwindCSS & Framer Motion
-          </p>
         </motion.div>
       </div>
     </section>

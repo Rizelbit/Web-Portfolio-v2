@@ -1,88 +1,150 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+
+/* ═══════════════════════════════════════════════
+   Loading Screen — Dark Mode Cinematic Entrance
+   Architecture: reference Loading.tsx pattern
+   Colors: portfolio design system (#080B14 bg, #7C3AED accent)
+   ═══════════════════════════════════════════════ */
 
 export default function LoadingScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const chainStartedRef = useRef(false);
+  const [screenOut, setScreenOut] = useState(false);
 
+  /* ─── Simulated loading progress ─── */
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(false), 1800);
-    return () => clearTimeout(timer);
+    let p = 0;
+    const interval = setInterval(() => {
+      if (p <= 50) {
+        p += Math.round(Math.random() * 5) + 1;
+      } else {
+        p += Math.round(Math.random() * 3) + 1;
+      }
+      if (p > 100) p = 100;
+      setPercent(p);
+      if (p >= 100) clearInterval(interval);
+    }, 80);
+    return () => clearInterval(interval);
   }, []);
 
-  const firstName = "Reinhard";
-  const lastName = "Alfonzo";
+  /* ─── Chained dismiss: 100% → Welcome → Expand → Gone ─── */
+  useEffect(() => {
+    if (percent < 100 || chainStartedRef.current) return;
+    chainStartedRef.current = true;
+
+    // Step 1: Show "Welcome" text + chevron (loaded = true)
+    const t1 = setTimeout(() => setLoaded(true), 400);
+
+    // Step 2: Trigger expand-out immediately after — minimal dead time
+    const t2 = setTimeout(() => setClicked(true), 1400);
+    const t25 = setTimeout(() => setScreenOut(true), 2700);
+
+    // Step 3: Fully dismiss after expand animation completes
+    const t3 = setTimeout(() => setDismissed(true), 3200);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t25);
+      clearTimeout(t3);
+    };
+  }, [percent]);
+
+  /* ─── Lock body scroll while loading ─── */
+  useEffect(() => {
+    if (!dismissed) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [dismissed]);
+
+  /* ─── Mouse tracking for hover glow ─── */
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      const { currentTarget: target } = e;
+      const rect = target.getBoundingClientRect();
+      target.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+      target.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+    },
+    []
+  );
+
+  if (dismissed) return null;
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-bg-primary"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {/* Subtle background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent-cyan/5" />
-
-          <div className="relative flex flex-col items-center gap-2">
-            {/* First name */}
-            <motion.div className="flex overflow-hidden">
-              {firstName.split("").map((letter, i) => (
-                <motion.span
-                  key={`first-${i}`}
-                  className="text-4xl font-heading font-bold text-text-primary sm:text-5xl md:text-6xl"
-                  initial={{ y: 80, opacity: 0, rotateX: -90 }}
-                  animate={{ y: 0, opacity: 1, rotateX: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 12,
-                    delay: i * 0.06,
-                  }}
-                >
-                  {letter}
-                </motion.span>
+    <>
+      {/* Header bar — fades out when clicked */}
+      <div className={`loading-header ${screenOut ? "loading-header-out" : ""}`}>
+        <div className={`loaderGame ${clicked ? "loader-out" : ""}`}>
+          <div className="loaderGame-container">
+            <div className="loaderGame-in">
+              {[...Array(27)].map((_, i) => (
+                <div className="loaderGame-line" key={i} />
               ))}
-            </motion.div>
-
-            {/* Last name */}
-            <motion.div className="flex overflow-hidden">
-              {lastName.split("").map((letter, i) => (
-                <motion.span
-                  key={`last-${i}`}
-                  className="text-4xl font-heading font-bold text-accent sm:text-5xl md:text-6xl"
-                  initial={{ y: 80, opacity: 0, rotateX: -90 }}
-                  animate={{ y: 0, opacity: 1, rotateX: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 12,
-                    delay: 0.5 + i * 0.06,
-                  }}
-                >
-                  {letter}
-                </motion.span>
-              ))}
-            </motion.div>
-
-            {/* Loading bar */}
-            <motion.div
-              className="mt-6 h-0.5 w-24 overflow-hidden rounded-full bg-white/10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-accent to-accent-cyan"
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 0.8, delay: 1, ease: "easeInOut" }}
-              />
-            </motion.div>
+            </div>
+            <div className="loaderGame-ball" />
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Main loading screen — fades out when clicked */}
+      <div className={`loading-screen ${screenOut ? "loading-screen-out" : ""}`}>
+        {/* Background marquee */}
+        <div className="loading-marquee" aria-hidden="true">
+          <div className="loading-marquee-track">
+            <span>Software Engineer</span>
+            <span>Full-Stack Developer</span>
+            <span>Software Engineer</span>
+            <span>Full-Stack Developer</span>
+            <span>Software Engineer</span>
+            <span>Full-Stack Developer</span>
+          </div>
+        </div>
+
+        {/* Interactive loading button */}
+        <div
+          className={`loading-wrap ${clicked ? "loading-clicked" : ""}`}
+          onMouseMove={handleMouseMove}
+        >
+          <div className="loading-hover" />
+          <div
+            className={`loading-button ${loaded ? "loading-complete" : ""}`}
+          >
+            <div className="loading-container">
+              <div className="loading-content">
+                <div className="loading-content-in">
+                  Loading <span>{percent}%</span>
+                </div>
+              </div>
+              <div className="loading-box" />
+            </div>
+            <div className="loading-content2">
+              <span>Welcome</span>
+            </div>
+            <div className="loading-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

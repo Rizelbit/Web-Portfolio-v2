@@ -51,7 +51,7 @@ const badgeLabels: Record<string, string> = {
 };
 
 /* ═══════════════════════════════════════════════
-   Experience Section — GSAP Vertical Timeline
+   Experience Section — 3-Column Horizontal Timeline
    ═══════════════════════════════════════════════ */
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -60,7 +60,8 @@ export default function Experience() {
   const lineGlowRef = useRef<HTMLDivElement>(null);
   const segmentRefs = useRef<(HTMLDivElement | null)[]>([]);
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const leftRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rightRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -72,15 +73,14 @@ export default function Experience() {
     ).matches;
 
     if (prefersReducedMotion) {
-      /* Show everything in final state */
       const allEls = section.querySelectorAll(
-        ".experience-heading, .experience-dot, .experience-card, .experience-line, .experience-line-glow"
+        ".experience-heading, .experience-dot, .experience-left, .experience-right, .experience-line, .experience-line-glow"
       );
       gsap.set(allEls, { opacity: 1, y: 0, x: 0, scale: 1, scaleY: 1 });
       return;
     }
 
-    /* ═══ GSAP Context — same pattern as Projects.tsx ═══ */
+    /* ═══ GSAP Context ═══ */
     const ctx = gsap.context(() => {
       /* ─── Section heading ─── */
       if (headingRef.current) {
@@ -113,7 +113,7 @@ export default function Experience() {
         });
       }
 
-      /* ─── Line glow highlight — follows scroll with slight delay ─── */
+      /* ─── Line glow highlight ─── */
       if (lineGlowRef.current) {
         gsap.set(lineGlowRef.current, { scaleY: 0 });
         gsap.to(lineGlowRef.current, {
@@ -128,30 +128,44 @@ export default function Experience() {
         });
       }
 
-      /* ─── Cards + Dots — alternating left/right motion ─── */
-      cardRefs.current.forEach((card, i) => {
-        if (!card) return;
+      /* ─── Left, Right columns + Dots ─── */
+      leftRefs.current.forEach((left, i) => {
+        if (!left) return;
+        const right = rightRefs.current[i];
         const dot = dotRefs.current[i];
+        const segment = segmentRefs.current[i];
 
-        /* Alternate direction: even index → from left, odd → from right */
-        const fromX = i % 2 === 0 ? -80 : 80;
-
-        /* Card animation — alternating slide direction */
-        gsap.set(card, { opacity: 0, x: fromX, y: 30 });
-        gsap.to(card, {
+        /* Left column — slides in from the left */
+        gsap.set(left, { opacity: 0, x: -60 });
+        gsap.to(left, {
           opacity: 1,
           x: 0,
-          y: 0,
-          duration: 0.9,
+          duration: 0.8,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: card,
+            trigger: segment,
             start: "top 82%",
             toggleActions: "play none none reverse",
           },
         });
 
-        /* Dot animation — scale pop-in synced with card */
+        /* Right column — slides in from the right */
+        if (right) {
+          gsap.set(right, { opacity: 0, x: 60 });
+          gsap.to(right, {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: segment,
+              start: "top 82%",
+              toggleActions: "play none none reverse",
+            },
+          });
+        }
+
+        /* Dot — scale pop-in */
         if (dot) {
           gsap.set(dot, { opacity: 0, scale: 0 });
           gsap.to(dot, {
@@ -160,7 +174,7 @@ export default function Experience() {
             duration: 0.5,
             ease: "back.out(1.7)",
             scrollTrigger: {
-              trigger: card,
+              trigger: segment,
               start: "top 82%",
               toggleActions: "play none none reverse",
             },
@@ -179,18 +193,17 @@ export default function Experience() {
         My <span>Experience</span>
       </h2>
 
-      {/* Timeline container */}
+      {/* 3-column timeline */}
       <div className="experience-timeline">
-        {/* Animated vertical line — sits BEHIND cards */}
+        {/* Continuous vertical line in the center */}
         <div ref={lineRef} className="experience-line" aria-hidden="true" />
-        {/* Glow highlight overlay on the line */}
         <div
           ref={lineGlowRef}
           className="experience-line-glow"
           aria-hidden="true"
         />
 
-        {/* Segments: dot → connector → card */}
+        {/* Segments */}
         {experiences.map((exp, i) => {
           const isNow = exp.year === "NOW";
 
@@ -200,34 +213,18 @@ export default function Experience() {
               ref={(el) => { segmentRefs.current[i] = el; }}
               className="experience-segment"
             >
-              {/* Dot */}
+              {/* Left column — Role + Company + Year + Badge */}
               <div
-                ref={(el) => { dotRefs.current[i] = el; }}
-                className={`experience-dot ${isNow ? "experience-dot-now" : ""}`}
-              />
-
-              {/* Connector */}
-              <div className="experience-connector" aria-hidden="true" />
-
-              {/* Card */}
-              <div
-                ref={(el) => { cardRefs.current[i] = el; }}
-                className="experience-card"
+                ref={(el) => { leftRefs.current[i] = el; }}
+                className="experience-left"
               >
-                {/* Year badge — faded top-right */}
+                <h3 className="experience-role">{exp.role}</h3>
+                <p className="experience-company">{exp.company}</p>
                 <span
                   className={`experience-year ${isNow ? "experience-year-now" : ""}`}
-                  aria-hidden="true"
                 >
                   {exp.year}
                 </span>
-
-                {/* Content */}
-                <h3 className="experience-role">{exp.role}</h3>
-                <p className="experience-company">{exp.company}</p>
-                <p className="experience-description">{exp.description}</p>
-
-                {/* Type badge */}
                 <span
                   className={`experience-badge ${
                     exp.type === "current" ? "experience-badge-current" : ""
@@ -235,6 +232,22 @@ export default function Experience() {
                 >
                   {badgeLabels[exp.type]}
                 </span>
+              </div>
+
+              {/* Center column — Dot (line is absolute behind) */}
+              <div className="experience-center">
+                <div
+                  ref={(el) => { dotRefs.current[i] = el; }}
+                  className={`experience-dot ${isNow ? "experience-dot-now" : ""}`}
+                />
+              </div>
+
+              {/* Right column — Description only */}
+              <div
+                ref={(el) => { rightRefs.current[i] = el; }}
+                className="experience-right"
+              >
+                <p className="experience-description">{exp.description}</p>
               </div>
             </div>
           );

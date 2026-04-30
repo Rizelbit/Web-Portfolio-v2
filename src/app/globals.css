@@ -1717,7 +1717,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   Experience Section — GSAP Vertical Timeline
+   Experience Section — 3-Column Horizontal Timeline
    ═══════════════════════════════════════════════ */
 
 .experience-section {
@@ -1741,15 +1741,15 @@ body {
   color: #8B5CF6;
 }
 
-/* Timeline wrapper — wider to fit larger cards */
+/* Timeline wrapper — 3-column grid container */
 .experience-timeline {
   position: relative;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0;
 }
 
-/* Vertical line — sits BEHIND cards (z-index: 0) */
+/* ─── Continuous vertical line in the center ─── */
 .experience-line {
   position: absolute;
   top: 0;
@@ -1757,13 +1757,12 @@ body {
   width: 2px;
   height: 100%;
   background: linear-gradient(to bottom,
-      rgba(124, 58, 237, 0.5) 0%,
-      rgba(124, 58, 237, 0.2) 50%,
-      transparent 100%);
+      rgba(124, 58, 237, 0.6) 0%,
+      rgba(124, 58, 237, 0.3) 50%,
+      rgba(124, 58, 237, 0.1) 100%);
   transform-origin: top center;
   transform: translateX(-50%);
   z-index: 0;
-  display: none;
 }
 
 /* Glow highlight on the timeline line */
@@ -1771,31 +1770,67 @@ body {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 6px;
+  width: 8px;
   height: 100%;
   background: linear-gradient(to bottom,
-      rgba(139, 92, 246, 0.6) 0%,
-      rgba(124, 58, 237, 0.35) 30%,
-      rgba(124, 58, 237, 0.15) 70%,
+      rgba(139, 92, 246, 0.5) 0%,
+      rgba(124, 58, 237, 0.3) 30%,
+      rgba(124, 58, 237, 0.1) 70%,
       transparent 100%);
   transform-origin: top center;
   transform: translateX(-50%);
   z-index: 0;
-  filter: blur(4px);
+  filter: blur(6px);
   pointer-events: none;
-  display: none;
 }
 
-/* Timeline dot — above everything */
-.experience-dot {
+/* ─── Segment row — 3-column grid ─── */
+.experience-segment {
+  display: grid;
+  grid-template-columns: 1fr 48px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 5rem;
   position: relative;
+}
+
+/* ─── Left column — Role + Company + Year + Badge ─── */
+.experience-left {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+/* ─── Center column — Dot (line is behind) ─── */
+.experience-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 0.35rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Right column — Description only ─── */
+.experience-right {
+  text-align: left;
+  padding-top: 0.25rem;
+  align-self: center;
+}
+
+/* ─── Timeline dot ─── */
+.experience-dot {
   width: 16px;
   height: 16px;
-  margin: 0 auto 0;
   border-radius: 50%;
   background-color: #7C3AED;
-  z-index: 3;
+  z-index: 2;
   box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+  flex-shrink: 0;
 }
 
 /* NOW dot — glowing */
@@ -1821,116 +1856,52 @@ body {
   }
 }
 
-/* Timeline segment (dot + connector + card) */
-.experience-segment {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-
-/* Connector line between dot and card */
-.experience-connector {
-  width: 2px;
-  height: 40px;
-  background: linear-gradient(to bottom,
-      rgba(124, 58, 237, 0.8),
-      rgba(124, 58, 237, 0.2));
-  margin: 0 auto;
-  z-index: 1;
-}
-
-/* Experience card — LARGER, above the line */
-.experience-card {
-  width: 100%;
-  max-width: 860px;
-  padding: 2.75rem 3rem;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  position: relative;
-  overflow: visible;
-  z-index: 2;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
-}
-
-.experience-card::after {
-  content: '';
-  position: absolute;
-  bottom: -42px;
-  /* turun ke bawah card */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 42px;
-  background: linear-gradient(to bottom,
-      rgba(124, 58, 237, 0.2),
-      rgba(124, 58, 237, 0.8));
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Jangan tampilkan pada card terakhir */
-.experience-segment:last-child .experience-card::after {
-  display: none;
-}
-
-.experience-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(124, 58, 237, 0.4);
-  box-shadow: 0 0 30px rgba(124, 58, 237, 0.12), 0 0 60px rgba(124, 58, 237, 0.06);
-}
-
-/* Year badge — large, faded, top-right */
-.experience-year {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-family: var(--font-heading), system-ui, sans-serif;
-  font-size: 3rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.06);
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* NOW year — slightly brighter */
-.experience-year-now {
-  color: rgba(139, 92, 246, 0.15);
-}
-
+/* ─── Typography ─── */
 .experience-role {
   font-family: var(--font-heading), system-ui, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
   color: #F8FAFC;
-  margin: 0 0 0.35rem;
-  line-height: 1.3;
-  padding-right: 5rem;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+  text-align: left;
 }
 
 .experience-company {
   font-family: var(--font-body), system-ui, sans-serif;
-  font-size: 1rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
   font-weight: 500;
   color: #8B5CF6;
-  margin: 0 0 1rem;
+  margin: 0 0 0.5rem;
+  text-align: left;
+}
+
+.experience-year {
+  display: block;
+  font-family: var(--font-heading), system-ui, sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.08);
+  line-height: 1;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.experience-year-now {
+  color: rgba(139, 92, 246, 0.2);
 }
 
 .experience-description {
   font-family: var(--font-body), system-ui, sans-serif;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  line-height: 1.8;
   color: #94A3B8;
-  margin: 0 0 1.25rem;
+  margin: 0;
+  text-align: left;
 }
 
-/* Type badge */
+/* ─── Type badge ─── */
 .experience-badge {
   display: inline-block;
   padding: 0.3rem 0.85rem;
@@ -1951,7 +1922,7 @@ body {
   border-color: rgba(34, 211, 238, 0.2);
 }
 
-/* Mobile adjustments */
+/* ─── Mobile (<768px) — single column, line on left ─── */
 @media (max-width: 767px) {
   .experience-section {
     padding: 4rem 1rem;
@@ -1961,18 +1932,54 @@ body {
     margin-bottom: 3rem;
   }
 
-  .experience-card {
-    padding: 1.5rem 1.25rem;
-    max-width: 100%;
+  .experience-timeline {
+    padding-left: 24px;
   }
 
-  .experience-year {
-    font-size: 2.2rem;
+  /* Collapse to single column */
+  .experience-segment {
+    grid-template-columns: 24px 1fr;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    align-items: start;
+  }
+
+  /* Move line to left edge */
+  .experience-line,
+  .experience-line-glow {
+    left: 24px;
+  }
+
+  /* Center column becomes left-aligned dot */
+  .experience-center {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    padding-top: 0.15rem;
+  }
+
+  /* Left column stacks above right */
+  .experience-left {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: left;
+  }
+
+  /* Right column below left */
+  .experience-right {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+    align-self: start;
   }
 
   .experience-role {
-    font-size: 1.1rem;
-    padding-right: 3.5rem;
+    font-size: 1.25rem;
+  }
+
+  .experience-year {
+    font-size: 2rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
   }
 
   .experience-description {
@@ -1980,7 +1987,8 @@ body {
   }
 }
 
-/* ─── Reduced Motion ─── */
+
+/* ─── Reduced Motion Preference ─── */
 @media (prefers-reduced-motion: reduce) {
 
   *,

@@ -317,13 +317,24 @@ body {
 
 .hero-name-mask {
   display: inline-block;
-  overflow: hidden;
   vertical-align: bottom;
 }
 
 .hero-name-word {
   display: inline-block;
   will-change: transform, clip-path;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #c4b5fd 40%,
+    #ffffff 60%,
+    #8B5CF6 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .hero-name-word--accent {

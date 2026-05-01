@@ -504,17 +504,17 @@ export default function About() {
             {/* Stats */}
             <div className="about-stats">
               <div className="about-stat">
-                <span className="about-stat-number">3+</span>
-                <span className="about-stat-label">Projects shipped</span>
+                <span className="about-stat-number">5+</span>
+                <span className="about-stat-label">Projects built</span>
               </div>
               <div className="about-stat">
-                <span className="about-stat-number">2</span>
-                <span className="about-stat-label">Years of coding</span>
+                <span className="about-stat-number">1</span>
+                <span className="about-stat-label">Years of software development</span>
               </div>
               <div className="about-stat">
                 <span className="about-stat-number">1</span>
                 <span className="about-stat-label">
-                  Goal: meaningful software
+                  Goal: Software that solves real problems
                 </span>
               </div>
             </div>

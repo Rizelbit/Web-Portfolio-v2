@@ -930,6 +930,17 @@ body {
   overflow: hidden;
 }
 
+.project-card-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 1;
+  z-index: 0;
+}
+
 .projects-track {
   display: flex;
   align-items: center;
@@ -1100,6 +1111,7 @@ body {
     linear-gradient(90deg, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
+  display: none;
 }
 
 /* ─── Card Number Badge ─── */
@@ -1114,6 +1126,7 @@ body {
   color: rgba(255, 255, 255, 0.07);
   pointer-events: none;
   user-select: none;
+  display: none;
 }
 
 /* ─── Tech Tags ─── */
@@ -1143,6 +1156,39 @@ body {
 .project-card:hover .project-card-tag {
   border-color: rgba(124, 58, 237, 0.3);
   color: rgba(255, 255, 255, 0.8);
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.5) 60%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.75) 0%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* ─── Card Bottom Content ─── */

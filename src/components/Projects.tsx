@@ -17,30 +17,30 @@ if (typeof window !== "undefined") {
 const projects = [
   {
     id: 1,
-    title: "HEALTHCORE-N",
+    title: "DOM Tree Visualizer",
     description:
-      "Hospital Administration System with Abstract Data Types in C.",
-    tags: ["C", "ADT", "Data Structures", "CLI"],
-    github: "https://github.com/reinhardalfonzo",
-    gradient: "linear-gradient(135deg, #1e1b4b 0%, #3b0764 50%, #171717 100%)",
+      "A React + Go web app for DOM tree traversal using BFS and DFS with CSS selector matching.",
+    tags: ["Go", "Typescript", "Docker", "Azure"],
+    github: "https://github.com/Rizelbit/Tubes2_BOELANGOSONK-V2",
+    image: "/images/projects/DOM Tree Visualizer.png",
   },
   {
     id: 2,
-    title: "Matrix Calculator GHDB",
+    title: "tapOS",
     description:
-      "Linear algebraic matrix calculator built with Java and JavaFX.",
-    tags: ["Java", "JavaFX", "Linear Algebra", "GUI"],
-    github: "https://github.com/reinhardalfonzo",
-    gradient: "linear-gradient(135deg, #042f2e 0%, #083344 50%, #171717 100%)",
+      "tapOS is a 32-bit x86 operating system built from scratch, combining a robust kernel with multitasking, virtual memory, EXT2 filesystem, and an interactive shell for a complete low-level computing experience.",
+    tags: ["C", "Assembly", "Kernel", "EXT2"],
+    github: "https://github.com/Rizelbit/TugasBesar-os-tapOS",
+    image: "/images/projects/tapOS.jpeg",
   },
   {
     id: 3,
-    title: "CampusCompass",
+    title: "Nimonspoli",
     description:
-      "Career path recommendation platform for university students.",
-    tags: ["React", "TypeScript", "MongoDB"],
-    github: "https://github.com/reinhardalfonzo",
-    gradient: "linear-gradient(135deg, #4c0519 0%, #500724 50%, #171717 100%)",
+      "Nimonspoli is a Monopoly-inspired turn-based board game developed in C++, combining OOP design, layered architecture, and strategic gameplay elements like Skill Cards and a dynamic board.",
+    tags: ["C++", "Raylib", "OOP"],
+    github: "https://github.com/Rizelbit/tugas-besar-1-pop",
+    image: "/images/projects/Nimonspoli.jpeg",
   },
 ];
 
@@ -283,8 +283,15 @@ function ProjectCard({
   return (
     <div
       className={`project-card ${mobile ? "project-card--mobile" : ""}`}
-      style={{ background: project.gradient }}
+      style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0a0a0a 100%)' }}
     >
+      {/* Background image */}
+      <img
+        src={project.image}
+        alt={project.title}
+        className="project-card-image"
+      />
+
       {/* Decorative grid overlay */}
       <div className="project-card-grid" />
 

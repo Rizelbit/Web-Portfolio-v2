@@ -17,35 +17,35 @@ if (typeof window !== "undefined") {
 const experiences = [
   {
     id: 1,
-    role: "Position In Company",
-    company: "Company Name",
-    year: "20XX",
+    role: "Computational Thinking Course Assistant",
+    company: "Comlabs-USDI ITB",
+    year: "2025",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem, deserunt eaque officiis mollitia ratione suscipit repellat.",
-    type: "work" as const,
+      "Engineered and optimized high-performance, responsive web interfaces for the ARKAVIDIA official website using Next.js and Tailwind CSS, translating complex Figma designs into scalable, SEO-friendly implementations.",
+    type: "contract" as const,
   },
   {
     id: 2,
-    role: "Position In Company",
-    company: "Company Name",
-    year: "20XX",
+    role: "Frontend Developer",
+    company: "ARKAVIDIA",
+    year: "2025",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem, deserunt eaque officiis mollitia ratione suscipit repellat.",
-    type: "internship" as const,
+      "Guided over 100 students through algorithmic problem-solving while evaluating submissions, providing technical feedback, and supporting hands-on learning in computational thinking.",
+    type: "contract" as const,
   },
   {
     id: 3,
-    role: "Position In Company",
-    company: "Company Name",
-    year: "NOW",
+    role: "Head of Performance",
+    company: "Wispril HMIF ITB 2026",
+    year: "2026",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim labore sit non ipsum temporibus quidem, deserunt eaque officiis mollitia ratione suscipit repellat.",
-    type: "current" as const,
+      "Led the creative direction of HMIF ITB’s graduation performance by developing concepts, music, and choreography for a large-scale stage production.",
+    type: "contract" as const,
   },
 ];
 
 const badgeLabels: Record<string, string> = {
-  work: "Work",
+  contract: "Contract",
   internship: "Internship",
   current: "Current",
 };
@@ -227,7 +227,7 @@ export default function Experience() {
                 </span>
                 <span
                   className={`experience-badge ${
-                    exp.type === "current" ? "experience-badge-current" : ""
+                    exp.type === "contract" ? "experience-badge-current" : ""
                   }`}
                 >
                   {badgeLabels[exp.type]}

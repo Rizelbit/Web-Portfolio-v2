@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from 'next/image';
 
 /* ═══════════════════════════════════════════════
    Register GSAP ScrollTrigger plugin (once)
@@ -286,10 +287,12 @@ function ProjectCard({
       style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0a0a0a 100%)' }}
     >
       {/* Background image */}
-      <img
+      <Image
         src={project.image}
         alt={project.title}
+        fill
         className="project-card-image"
+        style={{ objectFit: 'cover' }}
       />
 
       {/* Decorative grid overlay */}

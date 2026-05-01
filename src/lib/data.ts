@@ -1,10 +1,32 @@
 import {
-  Code2, FileCode, Globe, Wind, Server, Database,
-  GitBranch, FileText, Cloud, Package, Zap, Hash,
-  Braces, Cpu, Coffee, Binary, LayoutGrid, Triangle,
-  Box, Hexagon,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+  SiHaskell,
+  SiReact,
+  SiTailwindcss,
+  SiNextdotjs,
+  SiBootstrap,
+  SiGo,
+  SiTypescript,
+  SiJavascript,
+  SiPython,
+  SiC,
+  SiCplusplus,
+  SiHtml5,
+  SiVercel,
+  SiPnpm,
+  SiBun,
+  SiLatex,
+  SiIntellijidea,
+  SiNodedotjs,
+  SiExpress,
+  SiPostgresql,
+  SiMongodb,
+  SiMysql,
+  SiGithub,
+  SiDocker,
+} from "react-icons/si";
+import { DiJava, DiCss3 } from "react-icons/di";
+import { VscAzure, VscVscode } from "react-icons/vsc";
+import type { IconType } from "react-icons";
 
 /* ═══════════════════════════════════════════════
    Centralized Data — Reinhard Alfonzo Portfolio
@@ -24,38 +46,38 @@ export const navLinks = [
 export interface Skill {
   name: string;
   color: string;
-  icon: LucideIcon;
+  icon: IconType;
 }
 
 export const skills: Skill[] = [
-  { name: "Go", color: "#00ADD8", icon: Code2 },
-  { name: "TypeScript", color: "#3178C6", icon: FileCode },
-  { name: "JavaScript", color: "#F7DF1E", icon: Braces },
-  { name: "Python", color: "#3776AB", icon: Code2 },
-  { name: "C", color: "#A8B9CC", icon: Cpu },
-  { name: "C++", color: "#00599C", icon: Cpu },
-  { name: "HTML5", color: "#E34F26", icon: Globe },
-  { name: "CSS3", color: "#1572B6", icon: Hash },
-  { name: "Haskell", color: "#5D4F85", icon: Binary },
-  { name: "Java", color: "#ED8B00", icon: Coffee },
-  { name: "React", color: "#61DAFB", icon: Hexagon },
-  { name: "TailwindCSS", color: "#06B6D4", icon: Wind },
-  { name: "Next.js", color: "#FFFFFF", icon: Triangle },
-  { name: "Bootstrap", color: "#7952B3", icon: LayoutGrid },
-  { name: "Node.js", color: "#339933", icon: Server },
-  { name: "Express", color: "#FFFFFF", icon: Server },
-  { name: "PostgreSQL", color: "#4169E1", icon: Database },
-  { name: "MongoDB", color: "#47A248", icon: Database },
-  { name: "MySQL", color: "#4479A1", icon: Database },
-  { name: "Git / GitHub", color: "#F05032", icon: GitBranch },
-  { name: "Docker", color: "#2496ED", icon: Box },
-  { name: "Azure", color: "#0078D4", icon: Cloud },
-  { name: "Vercel", color: "#FFFFFF", icon: Triangle },
-  { name: "pnpm", color: "#F69220", icon: Package },
-  { name: "Bun", color: "#FBF0DF", icon: Zap },
-  { name: "LaTeX", color: "#008080", icon: FileText },
-  { name: "VS Code", color: "#007ACC", icon: Code2 },
-  { name: "IntelliJ IDEA", color: "#FE315D", icon: Code2 },
+  { name: "Go", color: "#00ADD8", icon: SiGo },
+  { name: "TypeScript", color: "#3178C6", icon: SiTypescript },
+  { name: "JavaScript", color: "#F7DF1E", icon: SiJavascript },
+  { name: "Python", color: "#3776AB", icon: SiPython },
+  { name: "C", color: "#A8B9CC", icon: SiC },
+  { name: "C++", color: "#00599C", icon: SiCplusplus },
+  { name: "HTML5", color: "#E34F26", icon: SiHtml5 },
+  { name: "CSS3", color: "#1572B6", icon: DiCss3 as unknown as IconType },
+  { name: "Haskell", color: "#5D4F85", icon: SiHaskell },
+  { name: "Java", color: "#ED8B00", icon: DiJava as unknown as IconType },
+  { name: "React", color: "#61DAFB", icon: SiReact },
+  { name: "TailwindCSS", color: "#06B6D4", icon: SiTailwindcss },
+  { name: "Next.js", color: "#FFFFFF", icon: SiNextdotjs },
+  { name: "Bootstrap", color: "#7952B3", icon: SiBootstrap },
+  { name: "Node.js", color: "#339933", icon: SiNodedotjs },
+  { name: "Express", color: "#FFFFFF", icon: SiExpress },
+  { name: "PostgreSQL", color: "#4169E1", icon: SiPostgresql },
+  { name: "MongoDB", color: "#47A248", icon: SiMongodb },
+  { name: "MySQL", color: "#4479A1", icon: SiMysql },
+  { name: "Git / GitHub", color: "#F05032", icon: SiGithub },
+  { name: "Docker", color: "#2496ED", icon: SiDocker },
+  { name: "Azure", color: "#0078D4", icon: VscAzure as unknown as IconType },
+  { name: "Vercel", color: "#FFFFFF", icon: SiVercel },
+  { name: "pnpm", color: "#F69220", icon: SiPnpm },
+  { name: "Bun", color: "#FBF0DF", icon: SiBun },
+  { name: "LaTeX", color: "#008080", icon: SiLatex },
+  { name: "VS Code", color: "#007ACC", icon: VscVscode as unknown as IconType },
+  { name: "IntelliJ IDEA", color: "#FE315D", icon: SiIntellijidea },
 ];
 
 /* ─── About Feature Cards ─── */

@@ -59,6 +59,14 @@ export default function About() {
     const mobile = window.innerWidth < 768;
     setIsMobile(mobile);
 
+    /* Debounced resize → refresh ScrollTrigger */
+    let refreshTimer: ReturnType<typeof setTimeout>;
+    const debouncedRefresh = () => {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
+    };
+    window.addEventListener("resize", debouncedRefresh);
+
     /* Respect reduced motion */
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -79,11 +87,19 @@ export default function About() {
         });
         gsap.set(scene4Ref.current, { opacity: 1 });
       }
-      return;
+      return () => {
+        window.removeEventListener("resize", debouncedRefresh);
+        clearTimeout(refreshTimer);
+      };
     }
 
     if (mobile) {
       /* ─── MOBILE: Simple scroll-triggered reveals ─── */
+      gsap.set(
+        [scene1Ref.current, scene2Ref.current, scene3Ref.current, scene4Ref.current],
+        { opacity: 1, clearProps: "all" }
+      );
+
       const ctx = gsap.context(() => {
         /* Scene 1 words */
         const s1Words = scene1Ref.current?.querySelectorAll(".about-word");
@@ -115,19 +131,32 @@ export default function About() {
           });
         }
 
-        /* Scene 3 lines */
-        const s3Lines = scene3Ref.current?.querySelectorAll(".about-scene-line");
-        if (s3Lines?.length) {
-          gsap.set(s3Lines, { opacity: 0, y: 30 });
-          gsap.to(s3Lines, {
+        /* Scene 3 — animate container first, then stagger lines */
+        const scene3El = scene3Ref.current;
+        if (scene3El) {
+          gsap.set(scene3El, { opacity: 0, y: 40 });
+          gsap.to(scene3El, {
             opacity: 1, y: 0,
-            stagger: 0.12, duration: 0.6, ease: "power3.out",
+            duration: 0.8, ease: "power3.out",
             scrollTrigger: {
-              trigger: scene3Ref.current,
-              start: "top 80%",
+              trigger: scene3El,
+              start: "top 75%",
               toggleActions: "play none none none",
             },
           });
+          const s3Lines = scene3El.querySelectorAll(".about-scene-line");
+          if (s3Lines.length) {
+            gsap.set(s3Lines, { opacity: 0, y: 20 });
+            gsap.to(s3Lines, {
+              opacity: 1, y: 0,
+              stagger: 0.12, duration: 0.6, ease: "power3.out",
+              scrollTrigger: {
+                trigger: scene3El,
+                start: "top 70%",
+                toggleActions: "play none none none",
+              },
+            });
+          }
         }
 
         /* Scene 4 elements */
@@ -167,7 +196,11 @@ export default function About() {
         });
       }, section);
 
-      return () => ctx.revert();
+      return () => {
+        window.removeEventListener("resize", debouncedRefresh);
+        clearTimeout(refreshTimer);
+        ctx.revert();
+      };
     }
 
     /* ═══════════════════════════════════════════════
@@ -427,7 +460,11 @@ export default function About() {
 
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      window.removeEventListener("resize", debouncedRefresh);
+      clearTimeout(refreshTimer);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -521,8 +558,8 @@ export default function About() {
 
             {/* CV Download Pill */}
             <a
-              href="/cv.pdf"
-              download
+              href="CV_Reinhard Alfonzo Hutabarat.pdf"
+              download="CV_Reinhard_Alfonzo.pdf"
               className="about-cv-pill"
             >
               <div className="about-cv-pill-border" />

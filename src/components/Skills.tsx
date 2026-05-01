@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { IconType } from "react-icons";
 import { skills } from "@/lib/data";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
 
@@ -16,7 +17,7 @@ function SkillPill({
 }: {
   name: string;
   color: string;
-  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
+  icon: IconType;
 }) {
   return (
     <div className="glass group mx-2 flex shrink-0 cursor-pointer items-center gap-3 rounded-xl px-5 py-3 transition-all duration-300 hover:scale-105 hover:bg-white/[0.06] hover:border-white/[0.15] hover:shadow-lg">
@@ -49,14 +50,12 @@ function MarqueeRow({
         className={`flex shrink-0 ${
           reverse ? "animate-marquee-reverse" : "animate-marquee"
         } group-hover:[animation-play-state:paused]`}
+        style={{ width: "max-content" }}
       >
-        {items.map((skill, i) => (
-          <SkillPill key={`a-${i}`} {...skill} />
-        ))}
-        {/* Duplicate for seamless loop */}
-        {items.map((skill, i) => (
-          <SkillPill key={`b-${i}`} {...skill} />
-        ))}
+        {/* 4 copies — translateX(-50%) loops through 2, ensuring no gap at any viewport */}
+        {(["a", "b", "c", "d"] as const).flatMap((key) =>
+          items.map((skill, i) => <SkillPill key={`${key}-${i}`} {...skill} />)
+        )}
       </div>
     </div>
   );

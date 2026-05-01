@@ -48,6 +48,13 @@ export default function RootLayout({
       lang="en"
       className={`${archivo.variable} ${spaceGrotesk.variable} antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `history.scrollRestoration = 'manual';`,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-bg-primary text-text-primary">
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>
